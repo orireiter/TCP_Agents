@@ -14,7 +14,8 @@ About logging:
 --------------
 Both the sender and receiver create a child process responsible for logging.
 Should an error occur, the main process will send a message to the logging process.
-An example: 
+**An example:**
+
     logging.send({
         level: "error", 
         message: {
@@ -32,7 +33,8 @@ Parameters the client and server use.
 They can be given in the system, or in a .env file in the folder the app is running from.
 If one of the env variables is undefined or empty, an error will be thrown.
 Variables:
-    Server Parameters-
+
+    Server Parameters
         SRV_IP=0.0.0.0
         PORT=9000
         INCOMING_FOLDER=./logs
