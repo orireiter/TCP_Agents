@@ -3,10 +3,35 @@ const fs = require('graceful-fs');
 const utils = require('./utils');
 const cp = require('child_process');
 const path = require('path');
+const process = require('process');
 
-// Constants: port and host to connect to, directory to monitor for files.
-const [PORT, SERVER, DIRPATH] = [9000, '127.0.0.1', "./archive/"];
+
 const logging = cp.fork('./logging.js');
+
+
+// load constants from .env, if one exists.
+if (fs.readdirSync('./').includes('.env')) {
+    require('dotenv').config();
+}
+// Constants: port and host to connect to, directory to monitor for files.
+const [PORT, SERVER, DIRPATH] = [
+    process.env.PORT_TO, 
+    process.env.IP_TO, 
+    process.env.OUTGOING_FOLDER
+];
+if ([PORT, SERVER, DIRPATH].includes(undefined)
+    || [PORT, SERVER, DIRPATH].includes('')
+    || [PORT, SERVER, DIRPATH].includes(NaN)) 
+    {
+        logging.send({
+            level: "error", 
+            message: {
+                error: 'Malformed environment variables, check README.MD', 
+            },
+            service: "sender"}
+        );
+        throw Error('Malformed environment variables, check README.MD');
+}
 
 
 /**

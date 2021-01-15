@@ -3,8 +3,31 @@ const net = require("net");
 const utils = require("./utils")
 const cp = require('child_process');
 
-const [IP, PORT] = ['0.0.0.0', 9000]
 const logging = cp.fork('./logging.js');
+
+
+// load constants from .env, if one exists.
+if (fs.readdirSync('./').includes('.env')) {
+    require('dotenv').config();
+}
+const [IP, PORT, incoming_folder] = [
+    process.env.SRV_IP, 
+    Number(process.env.PORT),
+    process.env.INCOMING_FOLDER    
+];
+if ([PORT, IP, incoming_folder].includes(undefined) 
+    || [PORT, IP, incoming_folder].includes('') 
+    || [PORT, IP, incoming_folder].includes(NaN)) 
+    {
+        logging.send({
+            level: "error", 
+            message: {
+                error: 'Malformed environment variables, check README.MD', 
+            },
+            service: "receiver"}
+        );
+        throw Error('Malformed environment variables, check README.MD');
+}
 
 /*
     This tcp server is meant to receive files.
@@ -22,16 +45,14 @@ server.on('connection', handleConn);
  * @param {net.Socket} conn 
  */
 function handleConn(conn){
-    let [fulldate, ip] = [ 
-        utils.get_date(),
-        conn.remoteAddress.split(":")
-    ]
+    let ip = conn.remoteAddress.split(":");
+    
     /*  Checks if the given dir exists (and creates it if it doesn't).
         Returns the same string it was given, for later use.
         Then a path to the generated file is declared.
     */
     try {
-        var path = utils.check_dir(`./logs/${ip[ip.length - 1]}`);   
+        var path = utils.check_dir(`${incoming_folder}/${ip[ip.length - 1]}`);   
     } catch (err) {
         logging.send({
             level: "error", 

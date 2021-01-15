@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/orireiter/TCP_Agents#readme",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "graceful-fs": "^4.2.4",
     "winston": "^3.3.3"
   }
